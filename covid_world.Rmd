@@ -1,0 +1,97 @@
+---
+title: "COVID 19 - Total Cases (per million)"
+author: "Migliari, W. (2020)"
+output: rmarkdown::html_vignette
+
+---
+\
+\
+The following map brings information about the COVID-19 around the world considering the number of total cases (per million). Data extracted from [Our World in Data](https://ourworldindata.org/coronavirus-testing)
+\
+\
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(leaflet)
+library(rgdal)
+library(maps)
+library(readxl)
+library(dplyr)
+library(sf)
+library(tmap)
+library(tidyverse)
+
+# Read this shape file with the rgdal library. 
+
+world_shape <- st_read("/Users/wemigliari/Documents/R/Rshiny/covid_world/World_Countries__Generalized_.shp")
+world_shape_geo <- st_transform(world_shape, "+proj=longlat +datum=WGS84")
+world_shape_geo1 <- world_shape_geo %>%
+    dplyr::mutate(geometry = st_centroid(world_shape_geo$geometry))
+
+### Use tidyverse to pass mutate argument. 
+world_shape_geo2 <- world_shape_geo1%>%  
+    mutate(lat = unlist(map(world_shape_geo1$geometry,2)), long = unlist(map(world_shape_geo1$geometry,1)))
+
+####Data on Corona19
+covid_data <- read_excel("/Users/wemigliari/Documents/R/tabelas/covid_world.xlsx")
+COUNTRYAFF<- covid_data$location
+location1 <- cbind(covid_data, COUNTRYAFF)
+
+####Subsetting the data
+
+specific_date <- location1%>%
+  group_by(COUNTRYAFF) %>%
+  summarise(total_deaths_per_million1 = max(total_deaths_per_million, na.rm = TRUE))
+
+specific_date1 <- location1%>%
+  group_by(COUNTRYAFF) %>%
+  summarise(total_cases_per_million1 = max(total_cases_per_million, na.rm = TRUE))
+
+### Merging the tables
+
+world_covid <- merge(world_shape_geo2, location1, by= "COUNTRYAFF", all=T)
+rownames(world_covid) <- world_covid$Row.names; world_covid$Row.names <- NULL
+summary(world_covid)
+
+world_covid1 <- merge(world_covid, specific_date, by = c("COUNTRYAFF"), all = T)
+
+world_covid11 <- merge(world_covid1, specific_date1, by = c("COUNTRYAFF"), all = T)
+
+
+#qpal <- colorQuantile("Blues", covid_data$population, n = 9)
+
+bins <- c(0, 1, 100, 500, 1500, 3000, 4000)
+qpal <- colorBin("Blues", domain = world_covid11$total_cases_per_million, bins = bins)
+```
+
+
+
+```{r, echo = FALSE, comment = FALSE, warning = FALSE, fig.width=8, fig.height=8}
+
+# Prepare the text for tooltips:
+mytext <- paste(
+    "Country: ", world_covid11$COUNTRYAFF,"<br/>", 
+    "Population: ",round(world_covid11$population, 2),"<br/>", 
+    "Total Cases (per million): ", world_covid11$total_cases_per_million1, "<br/>",
+    "Total Deaths (per million): ", world_covid11$total_deaths_per_million1,"<br/>",
+    "Aged 70 Older (% Population): ", world_covid11$aged_70_older,"<br/>", 
+    sep="") %>%
+    lapply(htmltools::HTML)
+
+# Final Map
+
+leaflet(world_covid11) %>% addTiles()%>% 
+    addProviderTiles(providers$CartoDB)%>%
+    setView( lat=10, lng=0 , zoom=2) %>%
+    addCircleMarkers(lng = world_covid11$long, lat = world_covid11$lat, weight = 1, 
+                     radius = 5,
+                     label = mytext,
+                     color = ~qpal(total_cases_per_million),
+                     fillOpacity = 0.3)%>%
+    addLegend("bottomright", pal = qpal, values = ~total_cases_per_million, 
+              title = "COVID-19 Total Cases (per million)", opacity = 1)
+```
