@@ -68,7 +68,7 @@ library(odbc)
 con <- dbConnect(MySQL(), user="root", password="your_password", 
                  dbname="city_time", host="localhost", port=8889)
 
-dbListTables(con) # Checking the tables I have in MysqlWorkbench
+dbListTables(con) # Checking the tables I have in MySQLWorkbench
 
 my_sql_table <- sqlCreateTable(con, "cor_eur", cor_eur, row.names = NA, temporary = FALSE) #https://rdrr.io/cran/DBI/man/sqlCreateTable.html
 odbcDataType(con, my_sql_table)
