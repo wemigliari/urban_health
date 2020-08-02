@@ -1,0 +1,123 @@
+---
+title: ""
+author: ""
+output:
+  rmarkdown::html_document:
+    theme: lumen
+bibliography: testcf.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width=9, fig.height=4.5, fig.align = "center")
+
+library(readxl)
+library(leaflet)
+library(leaflet.extras)
+library(sp)
+library(plotly)
+library(DT)
+
+library(maps)
+library(mapdata)
+library(mapproj)
+
+
+
+```
+## {.tabset}
+
+### Mortality Rate (Total)
+\
+```{r, echo = FALSE, warning=FALSE, fig.width= 9, comment=FALSE, message=FALSE}
+
+
+corona_sweden <- read_excel("/Users/wemigliari/Documents/R/tabelas/corona_statistik_sverige.xlsx", sheet = "total_death")
+
+corona1 <- as.data.frame(corona_sweden)
+
+library(RColorBrewer)
+
+set.seed(50)
+
+plot_ly(corona1, x = corona1$Month...1, y = corona1$`2015`, 
+        name = "2015", type = "scatter", mode = "markers", color = I("steelblue"), marker = list(size = ~`2015`/60, opacity = 0.5))%>%
+  add_trace(x = corona1$Month...3, y = corona1$`2016`, color = I("steelblue"), name = "2016")%>%
+  add_trace(x = corona1$Month...5, y = corona1$`2017`, color = I("steelblue"), name = "2017")%>%
+  add_trace(x = corona1$Month...7, y = corona1$`2018`, color = I("steelblue"), name = "2018")%>%
+  add_trace(x = corona1$Month...9, y = corona1$`2019`, color = I("steelblue"), name = "2019")%>%
+  add_trace(x = corona1$Month...11, y = corona1$`2020`, color = I("black"), name = "2020")%>%
+  layout(title = "Figure 1. Total of Deaths, 2015-2019, Sweden", margin = list(b=5, l=5),
+         xaxis = list(tickangle=0, title = "Sverige centralbyrå (SCB)", tickfont = list(size = 7), titlefont=list(size=7),
+                      type = "date"),
+         yaxis = list(title = "", titlefont=list(size=7)),
+         legend = list(font = list(size = 10)))
+
+```
+\
+\
+```{r, echo = FALSE, warning=FALSE, fig.width = 8, comment=FALSE, message=FALSE}
+
+
+library(RColorBrewer)
+
+set.seed(50)
+
+plot_ly(corona1, x = corona1$MonthA, y = corona1$Average, 
+        name = "2015", type = "scatter", mode = "markers", color = I("darkgray"),
+        marker = list(size = corona1$Average/30, opacity = 0.7))%>%
+  layout(title = "Figure 2. Average of Deaths per day, 2015-2019, Sweden", margin = list(b=5, l=5),
+         xaxis = list(tickangle=0, title = "Sverige centralbyrå (SCB)", tickfont = list(size = 7), titlefont=list(size=7),
+                      type = "month"),
+         yaxis = list(title = "", titlefont=list(size=7)),
+         legend = list(font = list(size = 10)))
+
+```
+
+### Mortality Rate (Gender)
+
+```{r, echo = FALSE, warning=FALSE, fig.width= 9, comment=FALSE, message=FALSE}
+
+corona_sweden_gender <- read_excel("/Users/wemigliari/Documents/R/tabelas/corona_statistik_sverige.xlsx", sheet = "total_death_age")
+
+corona2 <- as.data.frame(corona_sweden_gender)
+
+library(RColorBrewer)
+
+set.seed(50)
+
+plot_ly(corona2, x = corona2$`2019`, y = corona2$`0-64W`, 
+        name = "0-64 Female", type = "scatter", mode = "markers", color = I("steelblue"), marker = list(size = corona2$`0-64W`/2, opacity = 0.8))%>%
+  add_trace(y = corona2$`65-79W`, color = I("darkgray"), name = "65-79 Female")%>%
+  add_trace(y = corona2$`80-89W`, color = I("lightblue"), name = "80-89 Female")%>%
+  add_trace(y = corona2$`90+W`, color = I("purple"), name = "90+ Female")%>%
+  layout(title = "Figure 1. Total of Deaths, Female, Age, Sweden, 2019", margin = list(b=5, l=5),
+         xaxis = list(tickangle=0, title = "Sverige centralbyrå (SCB)", tickfont = list(size = 7), titlefont=list(size=7),
+                      type = "date"),
+         yaxis = list(title = "", titlefont=list(size=7)),
+         legend = list(font = list(size = 10)))
+
+```
+
+```{r, echo = FALSE, warning=FALSE, fig.width= 9, comment=FALSE, message=FALSE}
+
+
+corona_sweden_gender <- read_excel("/Users/wemigliari/Documents/R/tabelas/corona_statistik_sverige.xlsx", sheet = "total_death_age")
+
+corona2 <- as.data.frame(corona_sweden_gender)
+
+library(RColorBrewer)
+
+set.seed(50)
+
+plot_ly(corona2, x = corona2$`2019`, y = corona2$`0-64M`, 
+        name = "0-64 Male", type = "scatter", mode = "markers", color = I("steelblue"), marker = list(size = corona2$`0-64M`/2, opacity = 0.8))%>%
+  add_trace(y = corona2$`65-79M`, color = I("darkgray"), name = "65-79 Male")%>%
+  add_trace(y = corona2$`80-89M`, color = I("lightblue"), name = "80-89 Male")%>%
+  add_trace(y = corona2$`90+M`, color = I("purple"), name = "90+ Male")%>%
+  layout(title = "Figure 2. Total of Deaths, Male, Age, Sweden, 2019", margin = list(b=5, l=5),
+         xaxis = list(tickangle=0, title = "Sverige centralbyrå (SCB)", tickfont = list(size = 7), titlefont=list(size=7),
+                      type = "date"),
+         yaxis = list(title = "", titlefont=list(size=7)),
+         legend = list(font = list(size = 10)))
+
+```
