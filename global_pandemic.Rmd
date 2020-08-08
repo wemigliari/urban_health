@@ -3,14 +3,22 @@ title: "COVID-19 and Ecological Rights"
 author: "Migliari, W. (2020)."
 output: 
   html_document:
+    theme: lumen
     toc: true
     toc_float: true
-
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(fig.width=9, fig.height=4.5, fig.align = "center")
 
+library(curl)
+library(rsconnect)
+library(markdown)
+library(rmarkdown)
+library(htmltools)
+library(mime)
+library(knitr)
+library(rsconnect)
 library(prettydoc)
 library(readxl)
 library(leaflet)
@@ -18,12 +26,21 @@ library(leaflet.extras)
 library(sp)
 library(plotly)
 library(DT)
+library(sf)
+library(rgdal)
 library(maps)
+library(tmap)
 library(mapdata)
 library(mapproj)
+library(shiny)
 library(dplyr)
 library(readxl)
 library(tidyverse)
+library(transformr)
+library(geojson)
+library(raster) # union function
+library(bookdown)
+library(xfun)
 
 ## Total Deaths per Region
 
@@ -50,25 +67,6 @@ test2 <- set_names(test, nm = test[1, ])
 test2 <- slice(test2, -1)
 
 test3 <-tibble::rownames_to_column(test2, "NAME_1") 
-
-library(curl)
-library(rsconnect)
-library(leaflet)
-library(leaflet.extras)
-library(sp)
-library(plotly)
-library(maps)
-library(mapdata)
-library(mapproj)
-library(shiny)
-library(sf)
-library(tmap)
-library(transformr)
-library(geojson)
-library(rgdal)
-library(raster) # union function
-library(bookdown)
-data("World")
 
 sweden <- readOGR("/Users/wemigliari/Documents/R/data/SWE_adm1.shp")
 class(sweden)
@@ -131,6 +129,7 @@ It is also important to highlight that the use of the content herein is under th
 \
 \
 \
+\
 
 ## Mortality Rate
 
@@ -167,6 +166,16 @@ plot_ly(corona1, x = corona1$Month...1, y = corona1$`2015`,
          legend = list(font = list(size = 10)))
 
 ```
+
+\
+\
+\
+\
+\
+\
+\
+
+### Average of Deaths
 
 \
 
@@ -367,8 +376,10 @@ datatable(corona_sweden_origin2,
 
 \
 
+
 ## Swedish Regions & Deaths
 
+\
 ```{r, echo = FALSE}
 
 ### Plotting
@@ -384,7 +395,14 @@ leaflet(sweden_test$geometry)%>%
 
 
 ```
+\
+We add more charts herein with the intention of complementing the interactive map above. The idea is to produce metadata using simple lines and figures to facilitate our comprehension of the COVID-19 dynamics in Sweden. See 
+```{r, echo = FALSE}
 
+xfun::embed_file('/Users/wemigliari/Library/Mobile Documents/com~apple~CloudDocs/Pós-Doutorado & Doutorado/Pós-Doc/Applications/7. July/Potsdam/Documentation/globalpandemic.pdf', text = 'Metadata on the COVID-19, Sweden, SCB')
+
+```
+.
 \
 \
 \
