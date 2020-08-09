@@ -376,6 +376,145 @@ datatable(corona_sweden_origin2,
 
 \
 
+## Hospital Beds 
+
+\
+
+The present section shows the data on hospital beds divided into subsections. The first one refers to the number of beds per 1,000. It includes countries which are members of the organization and its key partners. We filtered the Nordic Region to analyse the figures on the Swedish case. The second subsection brings forward the number of beds per 1,000 related to acute care and the numbers have been plotted following the same method of the subsection one. See 
+[OECD, Hospital Beds, Indicator per 1,000](https://data.oecd.org/healtheqt/hospital-beds.htm).
+
+### per 1,000 OECD
+
+\
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+
+hb_ocde <- read_xlsx("/Users/wemigliari/Documents/R/tabelas/hb_ocde.xlsx")
+
+hb_ocde1 <- hb_ocde%>%filter(SUBJECT == "TOT")
+hb_ocde1 <- data.frame(hb_ocde1)
+hb_ocde1[,7] <- sapply(hb_ocde1[,7], as.numeric)
+
+library(plotly)
+library(RColorBrewer)
+
+plot_ly(hb_ocde1, x = ~TIME, y = ~Value, text = ~LOCATION, type = 'scatter', mode = 'markers',
+        marker = list(size = ~Value, opacity = 0.5), 
+        color = ~LOCATION,
+        colors = colorRampPalette(brewer.pal(10,"Spectral"))(42))%>%
+  layout(title = 'Hospital beds. Total per 1,000 inhabitants, 2019, OECD',
+         xaxis = list(title = "", gridcolor = 'rgb(255, 255, 255)'),
+         yaxis = list(title = "Hospital Beds", gridcolor = 'rgb(255, 255, 255)'),
+         showlegend = TRUE)
+```
+
+\
+\
+\
+\
+\
+\
+\
+
+### per 1,000 Nordic Region
+
+\
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+
+nordics <- c("SWE", "DNK", "NOR", "FIN")
+
+hb_ocde2 <-  hb_ocde1%>%filter(LOCATION %in% nordics)
+hb_ocde2 <- data.frame(hb_ocde2) # Fisrt, convert the data table into data frame
+
+hb_ocde2[,7] <- sapply(hb_ocde2[,7], as.numeric)
+
+
+plot_ly(hb_ocde2, x = ~TIME, y = ~Value, text = ~LOCATION, type = 'scatter', mode = 'lines',
+        marker = list(size = ~Value, opacity = 0.5), 
+        color = ~LOCATION,
+        colors = colorRampPalette(brewer.pal(4,"Paired"))(4))%>%
+  layout(title = 'Hospital beds. Total per 1,000 inhabitants, 2019, OECD',
+         xaxis = list(title = "", gridcolor = 'rgb(255, 255, 255)'),
+         yaxis = list(title = "Hospital Beds", gridcolor = 'rgb(255, 255, 255)'),
+         showlegend = TRUE)
+
+```
+
+\
+\
+\
+\
+\
+\
+\
+
+### per 1,000 OECD, Acute Care
+
+\
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+ac_ocde <- read_xlsx("/Users/wemigliari/Documents/R/tabelas/hb_ocde.xlsx")
+
+ac_ocde1 <- ac_ocde%>%filter(SUBJECT == "ACUTE")
+
+ac_ocde1 <- data.frame(ac_ocde1) # Fisrt, convert the data table into data frame
+
+ac_ocde1[,7] <- sapply(ac_ocde1[,7], as.numeric)
+
+library(plotly)
+library(RColorBrewer)
+
+plot_ly(ac_ocde1, x = ~TIME, y = ~Value, text = ~LOCATION, type = 'scatter', mode = 'markers',
+        marker = list(size = ~Value, opacity = 0.5), 
+        color = ~LOCATION,
+        colors = colorRampPalette(brewer.pal(10,"Reds"))(42))%>%
+  layout(title = 'Hospital beds. Total per 1,000 inhabitants, 2019, OCDE',
+         xaxis = list(title = "", gridcolor = 'rgb(255, 255, 255)'),
+         yaxis = list(title = "Hospital Beds", gridcolor = 'rgb(255, 255, 255)'),
+         showlegend = TRUE)
+```
+
+\
+\
+\
+\
+\
+\
+\
+
+### per 1,000 Nordic Region, Acute Care
+
+\
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+nordics <- c("SWE", "DNK", "NOR", "FIN")
+
+ac_ocde2 <-  ac_ocde1%>%filter(LOCATION %in% nordics)
+ac_ocde2 <- data.frame(ac_ocde2) # Fisrt, convert the data table into data frame
+
+
+plot_ly(ac_ocde2, x = ~TIME, y = ~Value, text = ~LOCATION, type = 'scatter', mode = 'lines',
+        marker = list(size = ~Value, opacity = 0.5), 
+        color = ~LOCATION,
+        colors = colorRampPalette(brewer.pal(4,"Dark2"))(4))%>%
+  layout(title = 'Hospital beds, Acute. Total per 1,000 inhabitants, 2019, OCDE',
+         xaxis = list(title = ""),
+         size = 0.7,
+         yaxis = list(title = "Hospital Beds"),
+         size = 0.7,
+         showlegend = TRUE, legend = list(font = list(size = 10)))
+```
+
+\
+\
+\
+\
+\
+\
+\
 
 ## Swedish Regions & Deaths
 
