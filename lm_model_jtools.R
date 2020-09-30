@@ -4,6 +4,7 @@ library(jtools) ### Using new tools for your outputs
 
 model <- read_xlsx("/Users/wemigliari/Documents/R/tabelas/tour_gov_health_barna.xlsx",
                    sheet = "esp_cat_swedes")
+model<- data.frame(model)
 
 
 model_mlr_ar_n1 <- lm(model$Arrivals_cat ~ model$Arrivals_cat_dk + 
@@ -20,7 +21,20 @@ plot_summs(model_mlr_ar_n1, plot.distributions = TRUE)
 
 library(ExPanDaR)
 
-ExPanD(model)
+View
+
+test <- model
+row.names(test) <- test[,1]
+test[,1] <- NULL
+
+test1 <- signif(test, 1)
+
+ExPanD(test1)
+
+library(formattable)
+test2 <- formattable(test, 1, format = FALSE)
+
+
 
 ### Coments
 
