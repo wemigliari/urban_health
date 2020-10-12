@@ -1,0 +1,249 @@
+---
+title: ""
+author: ""
+output:
+  rmarkdown::html_document:
+    theme: lumen
+---
+\
+
+### Metadata & Statistik [This is not an official webpage!]
+
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/trafikverket.png"/>
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/boxplot2/boxplot2.gif"/>
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/boxplot/boxplot.gif"/>
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+### Gifs
+
+library(purrr)
+library(magick)
+library(knitr)
+library(DT)
+
+list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/boxplot", pattern = "*.png", full.names = T) %>% 
+  map(image_read) %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=0.5) %>% # animates, can opt for number of loops
+  image_write("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/boxplot/boxplot.gif") # write to current dir
+
+#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif")
+
+
+list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/boxplot2", pattern = "*.png", full.names = T) %>% 
+  map(image_read) %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=0.5) %>% # animates, can opt for number of loops
+  image_write("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/boxplot2/boxplot2.gif") # write to current dir
+
+#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/graph.gif")
+
+```
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+library(readxl)
+library(plotly)
+library(dplyr)
+
+alkohol <- read_excel("/Users/wemigliari/Documents/R/tabelas/total_alkoholanskaff.xlsx")
+
+alkohol <- data.frame(alkohol)
+
+alkohol[, c(3,6,9,12,15,18)] <- sapply(alkohol[, c(3,6,9,12,15,18)], as.numeric)
+alkohol[, c(2,5,8,11,14,17)] <- sapply(alkohol[, c(2,5,8,11,14,17)], as.character)
+
+
+trafik <- read_excel("/Users/wemigliari/Documents/R/tabelas/trafikolyckor.xlsx",
+                     sheet = "Omkomna_totalt")
+
+trafik <- data.frame(trafik)
+trafik[,1] <- sapply(trafik[,1], as.character)
+
+trafik2 <- read_excel("/Users/wemigliari/Documents/R/tabelas/trafikolyckor.xlsx",
+                      sheet = "Omkomna_kön")
+
+trafik2 <- data.frame(trafik2)
+trafik2[,1] <- sapply(trafik2[,1], as.character)
+
+```
+
+## {.tabset}
+
+\
+
+### Bilolyckor
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5, fig.align="center"}
+### Boxplots Trafik
+
+plot_ly(trafik, type = "box",
+        text = trafik$År,
+        quartilemethod="linear",
+        boxpoints = "all", jitter = 0.2,
+        pointpos = -1.8,
+        color = I("lightgray"))%>%
+  add_trace(y = ~Januari, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'Januari') %>%
+  add_trace(y = ~Februari, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'Februari') %>%
+  add_trace(y = ~Mars, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'Mars') %>%
+  add_trace(y = ~April, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'April') %>%
+  add_trace(y = ~Maj, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'Maj')%>%
+  add_trace(y = ~Juni, type = "box", color = I("steelblue"), marker = list(color = "steelblue"), name = 'Juni')%>%
+  add_trace(y = ~Juli, type = "box", color = I("steelblue"), marker = list(color = "steelblue"), name = 'Juli')%>%
+  add_trace(y = ~Augusti, type = "box", color = I("steelblue"), marker = list(color = "steelblue"), name = 'Augusti')%>%
+  add_trace(y = ~September, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'September')%>%
+  add_trace(y = ~Oktober, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'Oktober')%>%
+  add_trace(y = ~November, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'November')%>%
+  add_trace(y = ~December, type = "box", color = I("lightgray"), marker = list(color = "lightgray"), name = 'December')%>%
+  layout(title = "Alkoholanskaffning, total efter dryck. Antal liter ren alkohol per person 15 - månad/år",
+         xaxis = list(title = ""),
+         yaxis = list (title = "Liter (per år)"))
+
+```
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5, fig.align="center"}
+
+### Normal Distribution
+
+x <- rnorm(sum(trafik$Totalt))
+fit <- density(x)
+
+plot_ly(x = x, type = "histogram", name = "Histogram") %>% 
+  add_trace(x = fit$x, y = fit$y, type = "scatter", mode = "lines", 
+            fill = "tozeroy", yaxis = "y2", name = "Density",
+            color = I("lightblue")) %>% 
+  layout(title = "Histogram och densiteter vid trafikolyckor",
+    yaxis2 = list(overlaying = "y", side = "right"))
+
+```
+
+\
+
+### Alkohol
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5, fig.align="center"}
+
+### Boxplots Alkohol
+
+plot_ly(alkohol, type = "box", 
+        quartilemethod="linear",
+        boxpoints = "all", jitter = 0.3,
+        pointpos = -1.8,
+        color = I("steelblue"))%>%
+  add_trace(y = ~Riket6, name = "Alkoholskaffning", type = "box")%>%
+  add_trace(y = ~Riket5, name = "Sprit", type = "box")%>%
+  add_trace(y = ~Riket4, name = "Vin", type = "box")%>%
+  add_trace(y = ~Riket3, name = "Starköl", type = "box")%>%
+  add_trace(y = ~Riket2, name = "Cider", type = "box")%>%
+  add_trace(y = ~Riket1, name = "Folköl", type = "box")%>%
+  layout(title = "Alkoholanskaffning, total efter dryck. Antal liter ren alkohol per person 15 - år",
+         xaxis = list(title = ""),
+         yaxis = list (title = "Liter (per år)"))
+
+```
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5, fig.align="center"}
+
+### Normal Distribution
+
+x2 <- rnorm(sum(alkohol$Riket6, na.rm = TRUE))
+fit2 <- density(x2)
+
+plot_ly(x = x2, type = "histogram", name = "Histogram") %>% 
+  add_trace(x = fit2$x, y = fit2$y, type = "scatter", mode = "lines", 
+            fill = "tozeroy", yaxis = "y2", name = "Density",
+            color = I("lightblue")) %>% 
+  layout(title = "Histogram och densiteter vid trafikolyckor",
+    yaxis2 = list(overlaying = "y", side = "right"))
+
+```
+
+\
+
+### Tabeller
+
+\
+
+```{r, echo = FALSE, message = FALSE}
+
+options(digits = 0)
+
+datatable(alkohol, filter = 'top',
+          extensions = 'Buttons',
+          callback = DT::JS("return table;"),
+          caption = 'Tabell 1. Alkoholanskaffning, total efter dryck. Antal liter ren alkohol per person 15 - månad/år',
+          options = list(scrollX = T,
+            columnDefs = list(list(width = '10px', targets = "_all")),
+  pageLength = 20,
+  dom = 'Bfrtip', 
+  buttons = c('copy', 'csv', 'excel')))%>%
+  formatStyle(columns = c(1:18), fontSize = '80%')
+
+```
+
+\
+
+```{r, echo = FALSE, message = FALSE}
+
+options(digits = 0)
+
+datatable(trafik, filter = 'top',
+          extensions = 'Buttons',
+          callback = DT::JS("return table;"),
+          caption = 'Tabell 2. Omkomna enligt underlag till officiell statistik per månad',
+          options = list(scrollX = T,
+            columnDefs = list(list(width = '10px', targets = "_all")),
+  pageLength = 20,
+  dom = 'Bfrtip', 
+  buttons = c('copy', 'csv', 'excel')))%>%
+  formatStyle(columns = c(1:14), fontSize = '80%')
+
+```
+
+\
+
+```{r, echo = FALSE, message = FALSE}
+
+options(digits = 0)
+
+datatable(trafik2, filter = 'top',
+          extensions = 'Buttons',
+          callback = DT::JS("return table;"),
+          caption = 'Tabell 3. Omkomna enligt underlag till officiell statistik',
+          options = list(scrollX = T,
+            columnDefs = list(list(width = '10px', targets = "_all")),
+  pageLength = 20,
+  dom = 'Bfrtip', 
+  buttons = c('copy', 'csv', 'excel')))%>%
+  formatStyle(columns = c(1:4), fontSize = '80%')
+
+```
+
+\
+
+### Statistik Modell
+
+\
+R är också ett verktyg för att bygga statistiska modeller. Tänk dig att vi vill veta om konsumtionen av alkohol i augusti varje år (1996-2018) påverkas av alkoholkonsumtionen i juli. R returnerar värdena som är infogade i ett F-test, till exempel, men också grunderna för beskrivande statistik.
+```{r, echo = FALSE}
+
+xfun::embed_file('/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/tabell.pdf', text = 'Statistik Modell om Alkoholkonsumtion')
+
+```
+
+
+### Källor
+
+\
+
+<a href="https://www.transportstyrelsen.se/sv/vagtrafik/statistik/olycksstatistik/statistik-over-vagtrafikolyckor/" target="_blank"> Transport Styrelsen - Statistik över Vägtrafikolyckor </a>
+
+<a href="http://fohm-app.folkhalsomyndigheten.se/Folkhalsodata/pxweb/sv/A_Folkhalsodata/A_Folkhalsodata__6_Levnadsvanor__eAlkohol__bKonsumtion/Total_alkoholanskaffning.px/" target="_blank"> Folkhälsomyndigheten - Statistik över Alkoholkonsumtion </a>
