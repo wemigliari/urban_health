@@ -1,0 +1,126 @@
+---
+title: ""
+author: ""
+output:
+  rmarkdown::html_document:
+    theme: lumen
+---
+\
+
+### Metadata & Fakta [This is not an official webpage!]
+
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/trafikverket.png"/>
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/diagram/diagram.gif"/>
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/bubbles/bubbles.gif"/>
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+### Gifs
+
+library(purrr)
+library(magick)
+library(knitr)
+
+list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/bubbles", pattern = "*.png", full.names = T) %>% 
+  map(image_read) %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=0.5) %>% # animates, can opt for number of loops
+  image_write("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/bubbles/bubbles.gif") # write to current dir
+
+#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif")
+
+
+list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/diagram", pattern = "*.png", full.names = T) %>% 
+  map(image_read) %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=0.5) %>% # animates, can opt for number of loops
+  image_write("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/diagram/diagram.gif") # write to current dir
+
+#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/graph.gif")
+
+```
+
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+library(readxl)
+library(plotly)
+library(dplyr)
+
+alkohol <- read_excel("/Users/wemigliari/Documents/R/tabelas/total_alkoholanskaff.xlsx")
+
+alkohol <- data.frame(alkohol)
+
+alkohol[, c(3,6,9,12,15,18)] <- sapply(alkohol[, c(3,6,9,12,15,18)], as.numeric)
+alkohol[, c(2,5,8,11,14,17)] <- sapply(alkohol[, c(2,5,8,11,14,17)], as.character)
+
+trafik <- read_excel("/Users/wemigliari/Documents/R/tabelas/trafikolyckor.xlsx",
+                     sheet = "Omkomna_totalt")
+
+trafik <- data.frame(trafik)
+trafik[,1] <- sapply(trafik[,1], as.character)
+
+trafik2 <- read_excel("/Users/wemigliari/Documents/R/tabelas/trafikolyckor.xlsx",
+                      sheet = "Omkomna_kön")
+
+trafik2 <- data.frame(trafik2)
+trafik2[,1] <- sapply(trafik2[,1], as.character)
+
+```
+
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5, fig.align="center"}
+
+### Graph Kön
+
+plot_ly(trafik2, x = ~År, y = ~Kvinna, alpha = 0.5, type = 'scatter', mode = 'markers', text = "Kvinna", marker = list(size = ~Man/10, opacity = 0.5), color = I("steelblue"), marker = list(color = "steelblue"))%>% 
+  add_markers(x = ~År, y = ~Man, alpha = 0.5, 
+              text = "Man", name = "Man",
+              color = I("lightgray"), marker = list(color = "lightgray"))%>%
+  layout(
+  title = "Omkomna enligt underlag till officiell statistik per kön",
+  xaxis = list(domain = c(0.1, 1), title = "", tickfont = list(size = 10), tickangle = 90),
+  yaxis = list(title = "Totalt", tickfont = list(size = 10)),
+  updatemenus = list(
+    list(
+      y = 0.8,
+      buttons = list(
+        
+        list(method = "restyle",
+             args = list("type", "markers"),
+             label = "Bubbles"),
+
+        list(method = "restyle",
+             args = list("type", "histogram2d"),
+             label = "2D Histogram")))
+  ))
+
+```
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5, fig.align="center"}
+
+### Cirkeldiagrammer
+
+
+fig <- plot_ly()
+fig <- fig %>% add_pie(data = count(trafik2, trafik2$Kvinna), labels = trafik2$År, values = trafik2$Kvinna,
+                       name = "Kvinna", domain = list(row = 0, column = 0))
+fig <- fig %>% add_pie(data = count(trafik2, trafik2$Man), labels = trafik2$År, values = trafik2$Man,
+                       name = "Man", domain = list(row = 0, column = 1))
+fig <- fig %>% layout(title = "Omkomna enligt underlag till officiell statistik", showlegend = F,
+                      grid=list(rows=1, columns=2),
+                      xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+fig
+
+```
+
+\
+**Källor**
+<a href="https://www.transportstyrelsen.se/sv/vagtrafik/statistik/olycksstatistik/statistik-over-vagtrafikolyckor/" target="_blank"> Transport Styrelsen - Statistik över Vägtrafikolyckor </a> och <a href="http://fohm-app.folkhalsomyndigheten.se/Folkhalsodata/pxweb/sv/A_Folkhalsodata/A_Folkhalsodata__6_Levnadsvanor__eAlkohol__bKonsumtion/Total_alkoholanskaffning.px/" target="_blank"> Folkhälsomyndigheten - Statistik över Alkoholkonsumtion </a>
+
+\
+\
+\
