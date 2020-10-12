@@ -1,0 +1,169 @@
+---
+title: ""
+author: ""
+output:
+  rmarkdown::html_document:
+    theme: lumen
+---
+\
+
+### Metadata & Fakta [This is not an official webpage!]
+
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/trafikverket.png"/>
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif"/>
+<img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/graph/graph.gif"/>
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+### Gifs
+
+library(purrr)
+library(magick)
+library(knitr)
+
+list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif", pattern = "*.png", full.names = T) %>% 
+  map(image_read) %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=0.5) %>% # animates, can opt for number of loops
+  image_write("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif") # write to current dir
+
+#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif")
+
+
+list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/graph", pattern = "*.png", full.names = T) %>% 
+  map(image_read) %>% # reads each path file
+  image_join() %>% # joins image
+  image_animate(fps=0.5) %>% # animates, can opt for number of loops
+  image_write("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/graph/graph.gif") # write to current dir
+
+#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/graph.gif")
+
+```
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+library(readxl)
+library(plotly)
+library(dplyr)
+
+alkohol <- read_excel("/Users/wemigliari/Documents/R/tabelas/total_alkoholanskaff.xlsx")
+
+alkohol <- data.frame(alkohol)
+
+alkohol[, c(3,6,9,12,15,18)] <- sapply(alkohol[, c(3,6,9,12,15,18)], as.numeric)
+alkohol[, c(2,5,8,11,14,17)] <- sapply(alkohol[, c(2,5,8,11,14,17)], as.character)
+
+trafik <- read_excel("/Users/wemigliari/Documents/R/tabelas/trafikolyckor.xlsx",
+                     sheet = "Omkomna_totalt")
+
+trafik <- data.frame(trafik)
+trafik[,1] <- sapply(trafik[,1], as.character)
+
+trafik2 <- read_excel("/Users/wemigliari/Documents/R/tabelas/trafikolyckor.xlsx",
+                      sheet = "Omkomna_kön")
+
+trafik2 <- data.frame(trafik2)
+trafik2[,1] <- sapply(trafik2[,1], as.character)
+
+```
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+### Graph Kön
+
+fig1 <- plot_ly(trafik2, x = ~År, y = ~Kvinna, name = "Kvinna", type = "scatter", mode = 'lines+markers', color = I("steelblue"), opacity = 0.5, marker = list(size = ~Totalsumma/100, color = "steelblue"))%>%
+  add_trace(x = ~År, y = ~Man, name = "Man", mode = 'lines+markers',
+            color = I("gray"), marker = list(color = "gray"))%>%
+  add_trace(x = ~År, y = ~Totalsumma, name = "Totalt", mode = 'lines+markers', 
+            color = I("darkgreen"), marker = list(color = "darkgreen"))%>%
+  layout(title = "Omkomna enligt underlag till officiell statistik per kön",
+         titlefont = list(size = 10),
+         xaxis = list(title = "", tickfont = list(size = 10)),
+         yaxis = list (title = "Totalt antal bilolyckor per kön", tickfont = list(size = 10)))
+
+```
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5}
+### Graph Alkohol
+
+fig2 <- plot_ly(alkohol, x = ~Years1, y = ~Riket1, type = "scatter", mode = "lines+markers", color = I("lightgreen"), marker = list(size = ~Riket6, opacity = 0.5, color = "lightgreen"), name = 'Sprit')%>%
+  add_trace(x = ~Years2, y = ~Riket2, type = "scatter", mode = "lines+markers", color = I("lightgray"), marker = list(color = "lightgray"), name = 'Vin') %>%
+  add_trace(x = ~Years3, y = ~Riket3, type = "scatter", mode = "lines+markers", color = I("gray"), marker = list(color = "gray"), name = 'Starköl') %>%
+  add_trace(x = ~Years4, y = ~Riket4, type = "scatter", mode = "lines+markers", color = I("darkgreen"), marker = list(color = "darkgreen"), name = 'Cider') %>%
+  add_trace(x = ~Years5, y = ~Riket5, type = "scatter", mode = "lines+markers", color = I("purple"), marker = list(color = "purple"), name = 'Folköl')%>%
+  add_trace(x = ~Years6, y = ~Riket6, type = "scatter", mode = "lines+markers", color = I("steelblue"), marker = list(color = "steelblue"), name = 'Alkoholanskaffning')%>%
+  layout(title = "",
+         titlefont = list(size = 10),
+         xaxis = list(title = "", tickfont = list(size = 10)),
+         yaxis = list (title = "Alkoholkonsumtion (liter)", tickfont = list(size = 10)),
+         showlegend = FALSE)
+
+test <- subplot(fig1,fig2, margin = 0.05, nrows = 1, titleX = FALSE,
+                titleY = FALSE)
+
+test%>%layout(annotations = list(
+ list(x = 0.1 , y = 1.05, text = "Totalt antal bilolyckor, per kön", showarrow = F, xref='paper', yref='paper'),
+ list(x = 0.90 , y = 1.05, text = "Alkoholkonsumtion", showarrow = F, xref='paper', yref='paper'))
+)
+
+```
+
+\
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
+### Trafikolyckor
+
+fig3 <- plot_ly(trafik, x = ~År, y = ~Januari, type = "scatter", mode = "markers", color = I("black"), marker = list(size = ~Totalt/200, opacity = 0.5, color = "lightgreen"), name = 'Januari') %>%
+  add_markers(y = ~Februari, type = "box", mode = "markers", color = I("black"), marker = list(color = "lightgray"), name = 'Februari') %>%
+  add_markers(y = ~Mars, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "gray"), name = 'Mars') %>%
+  add_markers(y = ~April, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "darkgreen"), name = 'April') %>%
+  add_markers(y = ~Maj, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "purple"), name = 'Maj')%>%
+  add_markers(y = ~Juni, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "steelblue"), name = 'Juni')%>%
+  add_markers(y = ~Juli, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "gold"), name = 'Juli')%>%
+  add_markers(y = ~Augusti, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "red"), name = 'Augusti')%>%
+  add_markers(y = ~September, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "blue"), name = 'September')%>%
+  add_markers(y = ~Oktober, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "orange"), name = 'Oktober')%>%
+  add_markers(y = ~November, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "green"), name = 'November')%>%
+  add_markers(y = ~December, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "lightblue"), name = 'December')%>%
+  layout(title = "Omkomna enligt underlag till officiell statistik per månad",
+         xaxis = list(title = "", tickfont = list(size = 10)),
+         yaxis = list (title = "Dödsfall, bilolyckor, per månad", tickfont = list(size = 10)))
+
+```
+
+```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE, out.width = "100%", fig.height = 5}
+
+### Trafikolyckor Totalt
+
+fig4 <- plot_ly(trafik, x = ~År, y = ~Totalt, name = ~År,
+        type = "scatter", mode = "markers", 
+        size = ~Totalt/100, 
+        colors = 'Paired',
+        marker = list(opacity = 0.5, sizemode = 'diameter'))%>%
+  layout(title = "",
+         xaxis = list(title = "", tickfont = list(size = 10)),
+         yaxis = list (title = "Dödsfall, bilolyckor, per år", tickfont = list(size = 10)),
+         showlegend = FALSE)
+
+test2 <- subplot(fig3, fig4, margin = 0.05, nrows = 1, titleX = FALSE,
+                titleY = FALSE)
+
+test2%>%layout(annotations = list(
+ list(x = 0.1 , y = 1.05, text = "Dödsfall, bilolyckor, per månad", showarrow = F, xref='paper', yref='paper'),
+ list(x = 0.90 , y = 1.05, text = "Dödsfall, bilolyckor, per år", showarrow = F, xref='paper', yref='paper'))
+)
+
+```
+
+\
+**Källor**
+<a href="https://www.transportstyrelsen.se/sv/vagtrafik/statistik/olycksstatistik/statistik-over-vagtrafikolyckor/" target="_blank"> Transport Styrelsen - Statistik över Vägtrafikolyckor </a> och <a href="http://fohm-app.folkhalsomyndigheten.se/Folkhalsodata/pxweb/sv/A_Folkhalsodata/A_Folkhalsodata__6_Levnadsvanor__eAlkohol__bKonsumtion/Total_alkoholanskaffning.px/" target="_blank"> Folkhälsomyndigheten - Statistik över Alkoholkonsumtion </a>
+
+\
+\
+\
+
+
+  
+  
+
+
