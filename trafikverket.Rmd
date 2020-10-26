@@ -13,6 +13,9 @@ output:
 <img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif"/>
 <img width="33%" src="/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/graph/graph.gif"/>
 
+\
+
+
 ```{r, echo = FALSE, message = FALSE, comment = FALSE, warning = FALSE}
 ### Gifs
 
@@ -26,7 +29,7 @@ list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverke
   image_animate(fps=0.5) %>% # animates, can opt for number of loops
   image_write("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif") # write to current dir
 
-#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/trafikverket.gif")
+#knitr::include_graphics("/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/gif/gif.gif")
 
 
 list.files(path = "/Users/wemigliari/Documents/R/R_Scripts/Rmarkdown/trafikverket/graph", pattern = "*.png", full.names = T) %>% 
@@ -78,7 +81,7 @@ fig1 <- plot_ly(trafik2, x = ~År, y = ~Kvinna, name = "Kvinna", type = "scatter
   layout(title = "Omkomna enligt underlag till officiell statistik per kön",
          titlefont = list(size = 10),
          xaxis = list(title = "", tickfont = list(size = 10)),
-         yaxis = list (title = "Totalt antal bilolyckor per kön", tickfont = list(size = 10)))
+         yaxis = list (title = "Omkomna enligt underlag till officiell statistik per år", tickfont = list(size = 10)))
 
 ```
 
@@ -101,8 +104,8 @@ test <- subplot(fig1,fig2, margin = 0.05, nrows = 1, titleX = FALSE,
                 titleY = FALSE)
 
 test%>%layout(annotations = list(
- list(x = 0.1 , y = 1.05, text = "Totalt antal bilolyckor, per kön", showarrow = F, xref='paper', yref='paper'),
- list(x = 0.90 , y = 1.05, text = "Alkoholkonsumtion", showarrow = F, xref='paper', yref='paper'))
+ list(x = 0.04 , y = 1.05, text = "Omkomna enligt underlag till officiell statistik per år", showarrow = F, xref='paper', yref='paper'),
+ list(x = 0.85 , y = 1.05, text = "Alkoholkonsumtion", showarrow = F, xref='paper', yref='paper'))
 )
 
 ```
@@ -126,7 +129,7 @@ fig3 <- plot_ly(trafik, x = ~År, y = ~Januari, type = "scatter", mode = "marker
   add_markers(y = ~December, type = "scatter", mode = "markers", color = I("black"), marker = list(color = "lightblue"), name = 'December')%>%
   layout(title = "Omkomna enligt underlag till officiell statistik per månad",
          xaxis = list(title = "", tickfont = list(size = 10)),
-         yaxis = list (title = "Dödsfall, bilolyckor, per månad", tickfont = list(size = 10)))
+         yaxis = list (title = "Bilolyckor, per månad", tickfont = list(size = 10)))
 
 ```
 
@@ -141,15 +144,15 @@ fig4 <- plot_ly(trafik, x = ~År, y = ~Totalt, name = ~År,
         marker = list(opacity = 0.5, sizemode = 'diameter'))%>%
   layout(title = "",
          xaxis = list(title = "", tickfont = list(size = 10)),
-         yaxis = list (title = "Dödsfall, bilolyckor, per år", tickfont = list(size = 10)),
+         yaxis = list (title = "Bilolyckor, per år", tickfont = list(size = 10)),
          showlegend = FALSE)
 
 test2 <- subplot(fig3, fig4, margin = 0.05, nrows = 1, titleX = FALSE,
                 titleY = FALSE)
 
 test2%>%layout(annotations = list(
- list(x = 0.1 , y = 1.05, text = "Dödsfall, bilolyckor, per månad", showarrow = F, xref='paper', yref='paper'),
- list(x = 0.90 , y = 1.05, text = "Dödsfall, bilolyckor, per år", showarrow = F, xref='paper', yref='paper'))
+ list(x = 0.1 , y = 1.05, text = "Svårt skadade enligt polisen per månad", showarrow = F, xref='paper', yref='paper'),
+ list(x = 0.90 , y = 1.05, text = "Svårt skadade enligt polisen per år", showarrow = F, xref='paper', yref='paper'))
 )
 
 ```
