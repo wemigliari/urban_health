@@ -1,3 +1,4 @@
+library(readxl)
 library(jtools) ### Using new tools for your outputs
 
 ## Model https://cran.r-project.org/web/packages/jtools/vignettes/summ.html
@@ -16,24 +17,6 @@ summ(model_mlr_ar_n1, confint = TRUE, digits = 4, ci.width = 0.5)
 
 plot_summs(model_mlr_ar_n1)
 plot_summs(model_mlr_ar_n1, plot.distributions = TRUE)
-
-##### Rshiny
-
-library(ExPanDaR)
-
-View
-
-test <- model
-row.names(test) <- test[,1]
-test[,1] <- NULL
-
-test1 <- signif(test, 1)
-
-ExPanD(test1)
-
-library(formattable)
-test2 <- formattable(test, 1, format = FALSE)
-
 
 
 ### Coments
